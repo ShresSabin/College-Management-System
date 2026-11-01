@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Project College Management System{% endblock %}</title>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="app-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="brand-text">
+                <h2>Project College</h2>
+                <span>Academic Cloud</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            {% if user.is_authenticated %}
+                {% if user.role == 'ADMIN' or user.is_superuser %}
+                    <span class="menu-label">Administration</span>
+                    <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                    <a href="{% url 'admin_students_list' %}" class="nav-link {% if 'students' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-user-graduate"></i> Students
+                    </a>
+                    <a href="{% url 'admin_teachers_list' %}" class="nav-link {% if 'teachers' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-chalkboard-user"></i> Faculty
+                    </a>
+                    <a href="{% url 'admin_departments' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_departments' %}active{% endif %}">
+                        <i class="fa-solid fa-building-columns"></i> Departments
+                    </a>
+                    <a href="{% url 'admin_courses' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_courses' %}active{% endif %}">
+                        <i class="fa-solid fa-book-bookmark"></i> Courses
+                    </a>
+                    <a href="{% url 'admin_subjects' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_subjects' %}active{% endif %}">
+                        <i class="fa-solid fa-book-open"></i> Subjects
+                    </a>
+                    <a href="{% url 'admin_timetable' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_timetable' %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-days"></i> Timetable
+                    </a>
+                    <a href="{% url 'admin_leaves' %}" class="nav-link {% if 'leaves' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-envelope-open-text"></i> Leave Requests
+                    </a>
+                
+                {% elif user.role == 'TEACHER' %}
+                    <span class="menu-label">Faculty Portal</span>
+                    <a href="{% url 'teacher_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                    <a href="{% url 'teacher_attendance_subjects' %}" class="nav-link {% if 'attendance' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-clipboard-check"></i> Take Attendance
+                    </a>
+                    <a href="{% url 'teacher_assignments' %}" class="nav-link {% if 'assignments' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-file-pen"></i> Assignments
+                    </a>
+                    <a href="{% url 'teacher_exams' %}" class="nav-link {% if 'exams' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-award"></i> Exam & Grades
+                    </a>
+                    <a href="{% url 'user_leave_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'user_leave_requests' %}active{% endif %}">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Apply Leave
+                    </a>
+
+                {% elif user.role == 'STUDENT' %}
+                    <span class="menu-label">Student Space</span>
+                    <a href="{% url 'student_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                    <a href="{% url 'student_attendance' %}" class="nav-link {% if request.resolver_match.url_name == 'student_attendance' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i> My Attendance
+                    </a>
+                    <a href="{% url 'student_timetable' %}" class="nav-link {% if request.resolver_match.url_name == 'student_timetable' %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-check"></i> Timetable
+                    </a>
+                    <a href="{% url 'student_assignments_view' %}" class="nav-link {% if 'assignments' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-laptop-code"></i> Assignments
+                    </a>
+                    <a href="{% url 'student_results' %}" class="nav-link {% if request.resolver_match.url_name == 'student_results' %}active{% endif %}">
+                        <i class="fa-solid fa-medal"></i> Grades & Marks
+                    </a>
+                    <a href="{% url 'user_leave_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'user_leave_requests' %}active{% endif %}">
+                        <i class="fa-solid fa-paper-plane"></i> Apply Leave
+                    </a>
+                {% endif %}
+
+                <span class="menu-label">Communication</span>
+                <a href="{% url 'notices_list' %}" class="nav-link {% if request.resolver_match.url_name == 'notices_list' %}active{% endif %}">
+                    <i class="fa-solid fa-bullhorn"></i> Campus Notices
+                </a>
+                <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fa-solid fa-id-badge"></i> My Profile
+                </a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            {% if user.is_authenticated %}
+                <div class="user-snippet">
+                    {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" alt="Profile" class="avatar">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ user.first_name|first|default:user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="user-details">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">{{ user.get_role_display }}</div>
+                    </div>
+                    <a href="{% url 'logout' %}" title="Log out" style="color: var(--text-muted); font-size: 1.1rem; padding: 4px;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="sidebarToggle" class="btn-secondary-custom" style="display: none; padding: 8px 12px;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Portal Dashboard{% endblock %}</h1>
+            </div>
+
+            <div class="topbar-right">
+                <span class="badge-role {{ user.role }}"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> {{ user.get_role_display }}</span>
+                <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-clock"></i> <span id="portal-clock"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <main class="content-body">
+            {% if messages %}
+                <div class="alert-messages">
+                    {% for message in messages %}
+                        <div class="alert-item alert-{{ message.tags }}">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if message.tags == 'success' %}
+                                    <i class="fa-solid fa-circle-check"></i>
+                                {% elif message.tags == 'error' %}
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-info"></i>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; cursor:pointer; font-size:1.1rem;">
+                                &times;
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script>
+    // Live Clock
+    function updateClock() {
+        const now = new Date();
+        const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const el = document.getElementById('portal-clock');
+        if (el) el.innerText = now.toLocaleDateString('en-US', options);
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // Sidebar Mobile Toggle
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

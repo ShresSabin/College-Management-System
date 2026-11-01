@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Log: {{ subject.name }} - Apex University{% endblock %}
+{% block page_title %}Attendance History: {{ subject.code }}{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card" style="--stat-accent: var(--primary-light);">
+        <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_records }}</div>
+            <div class="stat-label">Total Logs Recorded</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-success);">
+        <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ present_count }}</div>
+            <div class="stat-label">Present Marks</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-warning);">
+        <div class="stat-icon"><i class="fa-solid fa-user-clock"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ late_count }}</div>
+            <div class="stat-label">Late Marks</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-error);">
+        <div class="stat-icon"><i class="fa-solid fa-user-xmark"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ absent_count }}</div>
+            <div class="stat-label">Absent Marks</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-glass">
+    <div class="card-header-flex">
+        <h3 class="card-title">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary-light);"></i> Attendance Log Records
+        </h3>
+        <a href="{% url 'teacher_take_attendance' subject.id %}" class="btn-primary-custom" style="padding: 8px 16px; font-size: 0.85rem;">
+            <i class="fa-solid fa-plus"></i> Record New Day
+        </a>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Roll Number</th>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                    <tr>
+                        <td><strong style="color: var(--text-primary);">{{ r.date }}</strong></td>
+                        <td><span style="color: var(--primary-light); font-weight: 600;">{{ r.student.student_profile.roll_number }}</span></td>
+                        <td>{{ r.student.get_full_name }}</td>
+                        <td><span class="status-pill status-{{ r.status|lower }}">{{ r.status }}</span></td>
+                        <td>{{ r.remarks|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No attendance recorded yet for this subject.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

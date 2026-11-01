@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Faculty Directory - Project College{% endblock %}
+{% block page_title %}Faculty & Teacher Management{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <form method="get" style="display: flex; gap: 12px; flex: 1; max-width: 500px;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by faculty name or employee ID..." class="form-control" style="padding: 10px 14px;">
+            <button type="submit" class="btn-secondary-custom">Search</button>
+        </form>
+
+        <a href="{% url 'admin_teacher_create' %}" class="btn-primary-custom">
+            <i class="fa-solid fa-user-tie"></i> Add Faculty Member
+        </a>
+    </div>
+</div>
+
+<div class="card-glass">
+    <div class="table-wrapper">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Emp ID</th>
+                    <th>Faculty Name</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Qualification</th>
+                    <th>Contact</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in teachers %}
+                    <tr>
+                        <td><strong style="color: var(--accent-cyan);">{{ t.employee_id }}</strong></td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-primary);">{{ t.user.get_full_name }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ t.user.email }}</div>
+                        </td>
+                        <td><span class="badge-role TEACHER">{{ t.department.code }}</span></td>
+                        <td><strong style="color: var(--text-primary);">{{ t.designation }}</strong></td>
+                        <td><span style="font-size: 0.85rem; color: var(--text-secondary);">{{ t.qualification|default:"-" }}</span></td>
+                        <td>{{ t.user.phone|default:"-" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin_teacher_delete' t.id %}" onsubmit="return confirm('Are you sure you want to remove this faculty record?');" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger-custom" title="Remove Faculty">
+                                    <i class="fa-solid fa-trash-can"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No faculty members found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

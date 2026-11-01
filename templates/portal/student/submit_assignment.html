@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Submit Assignment - Apex University{% endblock %}
+{% block page_title %}Upload Assignment Solution{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <div>
+                <h3 class="card-title">{{ assignment.title }}</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">
+                    {{ assignment.subject.name }} ({{ assignment.subject.code }}) • Max Marks: {{ assignment.max_marks }}
+                </span>
+            </div>
+            <a href="{% url 'student_assignments_view' %}" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                Back
+            </a>
+        </div>
+
+        <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">
+                Problem Statement & Instructions
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; white-space: pre-line;">
+                {{ assignment.description }}
+            </p>
+            {% if assignment.attachment %}
+                <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <a href="{{ assignment.attachment.url }}" target="_blank" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.78rem;">
+                        <i class="fa-solid fa-file-arrow-down"></i> Download Professor's Assignment Attachment
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Solution Notes / Written Answer / Code Link</label>
+                {{ form.submission_text }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Solution Document / Code Archive / PDF File</label>
+                {{ form.submission_file }}
+                {% if submission.submission_file %}
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+                        Currently submitted: <a href="{{ submission.submission_file.url }}" target="_blank" style="color: var(--accent-cyan);">{{ submission.submission_file.name }}</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    <i class="fa-regular fa-clock"></i> Deadline: {{ assignment.due_date|date:"M d, Y H:i" }}
+                </span>
+                <button type="submit" class="btn-primary-custom" style="padding: 12px 28px;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> {% if submission %}Save & Resubmit Solution{% else %}Submit Solution{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

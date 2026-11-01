@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Class Timetable - Apex University{% endblock %}
+{% block page_title %}Weekly Academic Timetable{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 18px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <strong style="color: var(--text-primary); font-size: 1.1rem;">{{ profile.course.name }}</strong>
+            <span style="color: var(--text-muted); font-size: 0.88rem;"> • Semester {{ profile.semester }} • Section A</span>
+        </div>
+        <span class="badge-role STUDENT">Academic Year 2026</span>
+    </div>
+</div>
+
+<div class="timetable-grid">
+    {% for day, day_slots in timetable_by_day.items %}
+        <div class="timetable-day-card">
+            <div class="day-header">
+                <span>{{ day }}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">{{ day_slots|length }} Periods</span>
+            </div>
+
+            {% for slot in day_slots %}
+                <div class="slot-item">
+                    <div class="slot-time">
+                        <i class="fa-regular fa-clock"></i> {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                        <span class="status-pill status-submitted" style="margin-left: auto; font-size: 0.7rem;">{{ slot.room_number }}</span>
+                    </div>
+                    <div class="slot-title">{{ slot.subject.name }}</div>
+                    <div class="slot-meta">
+                        <span>Code: {{ slot.subject.code }}</span>
+                        <span>•</span>
+                        <span>Prof: {{ slot.subject.teacher.get_full_name|default:"TBA" }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">
+                    No lectures scheduled.
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

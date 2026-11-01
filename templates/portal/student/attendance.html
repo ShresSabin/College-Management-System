@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}My Attendance Report - Apex University{% endblock %}
+{% block page_title %}Academic Attendance Performance{% endblock %}
+
+{% block content %}
+<!-- OVERALL ATTENDANCE KPI BANNER -->
+<div class="card-glass" style="margin-bottom: 24px; padding: 24px 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--bg-subtle); border: 4px solid {% if overall_pct >= 75 %}#10b981{% elif overall_pct >= 65 %}#f59e0b{% else %}#f43f5e{% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800; font-family: 'Outfit'; color: var(--text-primary);">
+                {{ overall_pct }}%
+            </div>
+            <div>
+                <h3 style="font-size: 1.3rem; margin-bottom: 4px;">Cumulative Attendance Rate</h3>
+                <p style="color: var(--text-secondary); font-size: 0.88rem;">
+                    You have attended <strong style="color: var(--text-primary);">{{ overall_attended }}</strong> out of <strong style="color: var(--text-primary);">{{ overall_total }}</strong> total conducted lecture sessions.
+                </p>
+            </div>
+        </div>
+
+        <div>
+            {% if overall_pct >= 75 %}
+                <span class="status-pill status-approved" style="font-size: 0.88rem; padding: 8px 16px;">
+                    <i class="fa-solid fa-circle-check"></i> Eligible for Exams (Criteria: &ge; 75%)
+                </span>
+            {% else %}
+                <span class="status-pill status-absent" style="font-size: 0.88rem; padding: 8px 16px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Below Mandatory 75% Requirement
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- SUBJECT-BY-SUBJECT BREAKDOWN CARDS -->
+<div class="card-glass" style="margin-bottom: 24px;">
+    <div class="card-header-flex">
+        <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color: var(--primary-light);"></i> Subject-Wise Breakdown</h3>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+        {% for s in subject_stats %}
+            <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                        <span class="badge-role STUDENT" style="font-size: 0.7rem;">{{ s.subject.code }}</span>
+                        <h4 style="font-size: 1.05rem; margin-top: 4px;">{{ s.subject.name }}</h4>
+                    </div>
+                    <strong style="font-size: 1.35rem; font-family: 'Outfit'; color: {% if s.percentage >= 75 %}var(--text-success){% elif s.percentage >= 65 %}var(--text-warning){% else %}var(--text-error){% endif %};">
+                        {{ s.percentage }}%
+                    </strong>
+                </div>
+
+                <div class="progress-bar-container" style="margin-bottom: 12px;">
+                    <div class="progress-bar-fill {% if s.percentage >= 75 %}progress-green{% elif s.percentage >= 65 %}progress-amber{% else %}progress-red{% endif %}" style="width: {{ s.percentage }}%;"></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);">
+                    <span style="color: var(--text-success);"><i class="fa-solid fa-check"></i> {{ s.present }} Present</span>
+                    <span style="color: var(--text-warning);"><i class="fa-solid fa-clock"></i> {{ s.late }} Late</span>
+                    <span style="color: var(--text-error);"><i class="fa-solid fa-xmark"></i> {{ s.absent }} Absent</span>
+                    <span>Total: {{ s.total }}</span>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; color: var(--text-muted); padding: 30px;">No subject attendance statistics recorded yet.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- RECENT ATTENDANCE HISTORY LOG -->
+<div class="card-glass">
+    <div class="card-header-flex">
+        <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-cyan);"></i> Daily Class Logs (Recent 30 Sessions)</h3>
+    </div>
+    <div class="table-wrapper">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Attendance Status</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                    <tr>
+                        <td><strong style="color: var(--text-primary);">{{ log.date }}</strong></td>
+                        <td>{{ log.subject.name }} ({{ log.subject.code }})</td>
+                        <td><span class="status-pill status-{{ log.status|lower }}">{{ log.status }}</span></td>
+                        <td>{{ log.remarks|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">No daily logs found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

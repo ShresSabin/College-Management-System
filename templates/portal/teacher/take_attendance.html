@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Record Attendance: {{ subject.name }} - Apex University{% endblock %}
+{% block page_title %}Mark Attendance: {{ subject.code }}{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="font-size: 1.3rem; margin-bottom: 4px;">{{ subject.name }}</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Course: <strong style="color: var(--text-primary);">{{ subject.course.name }}</strong> • Semester {{ subject.semester }}
+            </div>
+        </div>
+
+        <!-- DATE SELECTOR -->
+        <form method="get" style="display: flex; align-items: center; gap: 10px;">
+            <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">Attendance Date:</label>
+            <input type="date" name="date" value="{{ date_str }}" class="form-control" style="width: 170px; padding: 8px 12px;" onchange="this.form.submit()">
+        </form>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card-glass">
+        <div class="card-header-flex" style="flex-wrap: wrap; gap: 12px;">
+            <h3 class="card-title">
+                <i class="fa-solid fa-users-viewfinder" style="color: var(--accent-emerald);"></i> Enrolled Students ({{ student_data|length }})
+            </h3>
+            
+            <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="setAllStatus('Present')" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.8rem; color: var(--text-success) !important;">
+                    <i class="fa-solid fa-check-double"></i> Mark All Present
+                </button>
+                <button type="button" onclick="setAllStatus('Absent')" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.8rem; color: var(--text-error) !important;">
+                    <i class="fa-solid fa-xmark"></i> Mark All Absent
+                </button>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="custom-table attendance-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Roll Number</th>
+                        <th>Student Name</th>
+                        <th style="text-align: center; width: 270px;">Attendance Status</th>
+                        <th>Remarks / Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_data %}
+                        <tr>
+                            <td><strong style="color: var(--primary-light);">{{ item.profile.roll_number }}</strong></td>
+                            <td>
+                                <strong style="color: var(--text-primary);">{{ item.profile.user.get_full_name }}</strong>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.profile.user.email }}</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="status-radio-group">
+                                    <label class="status-radio-label">
+                                        <input type="radio" name="status_{{ item.profile.user.id }}" value="Present" {% if item.status == 'Present' %}checked{% endif %}>
+                                        Present
+                                    </label>
+                                    <label class="status-radio-label">
+                                        <input type="radio" name="status_{{ item.profile.user.id }}" value="Late" {% if item.status == 'Late' %}checked{% endif %}>
+                                        Late
+                                    </label>
+                                    <label class="status-radio-label">
+                                        <input type="radio" name="status_{{ item.profile.user.id }}" value="Absent" {% if item.status == 'Absent' %}checked{% endif %}>
+                                        Absent
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="text" name="remarks_{{ item.profile.user.id }}" value="{{ item.remarks }}" placeholder="Optional notes..." class="form-control" style="padding: 6px 12px; font-size: 0.85rem;">
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">No students enrolled for this course and semester.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="{% url 'teacher_attendance_history' subject.id %}" class="btn-secondary-custom">
+                <i class="fa-solid fa-clock-rotate-left"></i> View Subject History
+            </a>
+            <button type="submit" class="btn-primary-custom" style="padding: 12px 30px; font-size: 1rem;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Attendance Records
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+    function setAllStatus(status) {
+        const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+        radios.forEach(r => {
+            r.checked = true;
+        });
+    }
+</script>
+{% endblock %}

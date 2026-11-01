@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Grade Submission - Apex University{% endblock %}
+{% block page_title %}Grade Assignment Submission{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <div>
+                <h3 class="card-title">{{ submission.assignment.title }}</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">
+                    Student: <strong style="color: var(--text-primary);">{{ submission.student.get_full_name }}</strong> ({{ submission.student.student_profile.roll_number }})
+                </span>
+            </div>
+            <a href="{% url 'teacher_assignment_submissions' submission.assignment.id %}" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                Back
+            </a>
+        </div>
+
+        <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">
+                Student's Submitted Work
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; white-space: pre-line;">
+                {{ submission.submission_text|default:"No written text included." }}
+            </p>
+            {% if submission.submission_file %}
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                    <a href="{{ submission.submission_file.url }}" target="_blank" class="btn-secondary-custom" style="font-size: 0.82rem; padding: 6px 12px;">
+                        <i class="fa-solid fa-file-arrow-down"></i> Download Attached Submission
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Marks Awarded (Max: {{ submission.assignment.max_marks }})</label>
+                    {{ form.marks_obtained }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Submission Status</label>
+                    {{ form.status }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teacher Feedback & Comments</label>
+                {{ form.feedback }}
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="submit" class="btn-primary-custom" style="padding: 10px 24px;">
+                    <i class="fa-solid fa-check"></i> Save Evaluation & Feedback
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

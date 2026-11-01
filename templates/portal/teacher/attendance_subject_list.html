@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Take Attendance - Apex University{% endblock %}
+{% block page_title %}Select Subject to Record Attendance{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+    {% for s in subjects %}
+        <div class="card-glass card-interactive">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span class="badge-role TEACHER">{{ s.code }}</span>
+                <span class="badge-role STUDENT">Sem {{ s.semester }}</span>
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 6px;">{{ s.name }}</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;">
+                {{ s.course.name }} ({{ s.credits }} Credits)
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'teacher_take_attendance' s.id %}" class="btn-primary-custom" style="flex: 1; justify-content: center;">
+                    <i class="fa-solid fa-clipboard-check"></i> Take Attendance
+                </a>
+                <a href="{% url 'teacher_attendance_history' s.id %}" class="btn-secondary-custom" style="padding: 10px 14px;" title="View History Logs">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="card-glass" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
+            No assigned subjects found to take attendance.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

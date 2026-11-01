@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard - Apex University{% endblock %}
+{% block page_title %}Faculty Portal Overview{% endblock %}
+
+{% block content %}
+<!-- STATS ROW -->
+<div class="stats-grid">
+    <div class="stat-card" style="--stat-accent: var(--primary-light);">
+        <div class="stat-icon"><i class="fa-solid fa-chalkboard"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ subjects.count }}</div>
+            <div class="stat-label">Assigned Subjects</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--primary);">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ today_schedule.count }}</div>
+            <div class="stat-label">Classes Scheduled Today</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-warning);">
+        <div class="stat-icon"><i class="fa-solid fa-file-pen"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ pending_submissions }}</div>
+            <div class="stat-label">Submissions to Grade</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-success);">
+        <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ recent_assignments.count }}</div>
+            <div class="stat-label">Active Assignments</div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS BAR -->
+<div class="card-glass" style="margin-bottom: 24px; padding: 18px 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-bolt" style="color: var(--accent-amber);"></i>
+            <strong style="color: var(--text-primary); font-size: 0.95rem;">Faculty Quick Actions:</strong>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{% url 'teacher_attendance_subjects' %}" class="btn-primary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-clipboard-user"></i> Take Attendance
+            </a>
+            <a href="{% url 'teacher_assignments' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-plus"></i> Post Assignment
+            </a>
+            <a href="{% url 'teacher_exams' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-award"></i> Grade Exams
+            </a>
+            <a href="{% url 'user_leave_requests' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Apply Leave
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- GRID: TODAY'S SCHEDULE + MY SUBJECTS -->
+<div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px;">
+    <!-- TODAY'S SCHEDULE -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title">
+                <i class="fa-solid fa-calendar-day" style="color: var(--accent-cyan);"></i> Today's Schedule ({{ today_name }})
+            </h3>
+        </div>
+        {% for slot in today_schedule %}
+            <div class="slot-item">
+                <div class="slot-time">
+                    <i class="fa-regular fa-clock"></i> {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                    <span class="status-pill status-submitted" style="margin-left: auto; font-size: 0.72rem;">{{ slot.room_number }}</span>
+                </div>
+                <div class="slot-title">{{ slot.subject.name }}</div>
+                <div class="slot-meta">
+                    <span>Course: {{ slot.subject.course.code }}</span>
+                    <span>•</span>
+                    <span>Sem {{ slot.subject.semester }}</span>
+                    <a href="{% url 'teacher_take_attendance' slot.subject.id %}" class="btn-primary-custom" style="margin-left: auto; padding: 4px 10px; font-size: 0.75rem;">
+                        Take Attendance
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; color: var(--text-muted); padding: 30px;">
+                <i class="fa-regular fa-calendar-check" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                No classes scheduled for today!
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- ASSIGNED SUBJECTS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-book" style="color: var(--primary-light);"></i> My Assigned Subjects</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for s in subjects %}
+                <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">{{ s.name }}</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            Code: <strong style="color: var(--primary-light);">{{ s.code }}</strong> • {{ s.course.code }} • Sem {{ s.semester }} ({{ s.credits }} credits)
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{% url 'teacher_take_attendance' s.id %}" class="btn-secondary-custom" style="padding: 6px 10px; font-size: 0.78rem;" title="Mark Attendance">
+                            <i class="fa-solid fa-clipboard-check"></i> Attendance
+                        </a>
+                        <a href="{% url 'teacher_attendance_history' s.id %}" class="btn-secondary-custom" style="padding: 6px 10px; font-size: 0.78rem;" title="View Logs">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Logs
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; color: var(--text-muted); padding: 30px;">No subjects currently assigned to you.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

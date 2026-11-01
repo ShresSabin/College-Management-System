@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - Project College{% endblock %}
+{% block page_title %}Administrator Overview{% endblock %}
+
+{% block content %}
+<!-- METRIC STATS -->
+<div class="stats-grid">
+    <div class="stat-card" style="--stat-accent: var(--primary);">
+        <div class="stat-icon"><i class="fa-solid fa-user-graduate"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">Enrolled Students</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--primary-light);">
+        <div class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_teachers }}</div>
+            <div class="stat-label">Faculty Members</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-success);">
+        <div class="stat-icon"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_departments }}</div>
+            <div class="stat-label">Departments</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: #f472b6;">
+        <div class="stat-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_courses }}</div>
+            <div class="stat-label">Degree Courses</div>
+        </div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--text-warning);">
+        <div class="stat-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ pending_leaves }}</div>
+            <div class="stat-label">Pending Leaves</div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS BAR -->
+<div class="card-glass" style="margin-bottom: 24px; padding: 18px 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-bolt" style="color: var(--accent-amber);"></i>
+            <strong style="color: var(--text-primary); font-size: 0.95rem;">Quick Management Actions:</strong>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{% url 'admin_student_create' %}" class="btn-primary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-user-plus"></i> Enroll Student
+            </a>
+            <a href="{% url 'admin_teacher_create' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-user-tie"></i> Add Faculty
+            </a>
+            <a href="{% url 'admin_courses' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-plus"></i> New Course
+            </a>
+            <a href="{% url 'notices_list' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+                <i class="fa-solid fa-bullhorn"></i> Post Notice
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- TWO-COLUMN DASHBOARD SECTIONS -->
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;">
+    <!-- RECENT STUDENTS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-users" style="color: var(--primary-light);"></i> Newly Enrolled Students</h3>
+            <a href="{% url 'admin_students_list' %}" style="font-size: 0.82rem; font-weight: 600;">View All &rarr;</a>
+        </div>
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Student Name</th>
+                        <th>Course</th>
+                        <th>Sem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in recent_students %}
+                        <tr>
+                            <td><strong style="color: var(--primary-light);">{{ s.roll_number }}</strong></td>
+                            <td>{{ s.user.get_full_name }}</td>
+                            <td>{{ s.course.code|default:"-" }}</td>
+                            <td>Sem {{ s.semester }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No student records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PENDING LEAVE REQUESTS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-amber);"></i> Pending Leave Requests</h3>
+            <a href="{% url 'admin_leaves' %}" style="font-size: 0.82rem; font-weight: 600;">Manage Leaves &rarr;</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for l in recent_leaves %}
+                <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <strong style="color: var(--text-primary); font-size: 0.9rem;">{{ l.user.get_full_name }} ({{ l.user.get_role_display }})</strong>
+                        <span class="status-pill status-{{ l.status|lower }}">{{ l.status }}</span>
+                    </div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 8px;">{{ l.reason|truncatechars:90 }}</p>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-regular fa-calendar"></i> {{ l.start_date }} to {{ l.end_date }}</span>
+                        {% if l.status == 'Pending' %}
+                            <form method="post" action="{% url 'admin_leave_review' l.id %}" style="display: inline-flex; gap: 6px;">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="Approved" class="btn-success-custom" style="padding: 4px 8px; font-size: 0.75rem;">Approve</button>
+                                <button type="submit" name="action" value="Rejected" class="btn-danger-custom" style="padding: 4px 8px; font-size: 0.75rem;">Reject</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; color: var(--text-muted); padding: 30px;">No leave requests pending review.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

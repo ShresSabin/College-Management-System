@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project College Portal - Sign In</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent-cyan), var(--accent-purple));
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header .icon-wrap {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--text-on-accent);
+            box-shadow: 0 10px 25px var(--primary-glow);
+        }
+
+        .login-header h2 {
+            font-size: 1.75rem;
+            margin-bottom: 6px;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .role-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .role-option {
+            width: 100%;
+            justify-content: flex-start;
+            padding: 16px;
+            font-size: 1rem;
+        }
+
+        .role-option i {
+            width: 24px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="icon-wrap">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2>Project College</h2>
+            <p>Unified Campus Management Portal</p>
+        </div>
+
+        {% if messages %}
+            <div class="alert-messages" style="margin-bottom: 20px;">
+                {% for message in messages %}
+                    <div class="alert-item alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if selected_role %}
+            <h3 style="text-align: center; margin-bottom: 20px;">{{ selected_role_label }} Sign In</h3>
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="{{ selected_role }}">
+                <div class="form-group">
+                    <label class="form-label" for="username"><i class="fa-solid fa-user-tag" style="margin-right: 6px; color: var(--primary-light);"></i> Username</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password"><i class="fa-solid fa-key" style="margin-right: 6px; color: var(--primary-light);"></i> Password</label>
+                    {{ form.password }}
+                </div>
+
+                <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; padding: 13px; font-size: 1rem; margin-top: 8px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In as {{ selected_role_label }}
+                </button>
+            </form>
+            <div style="text-align: center; margin-top: 18px;">
+                <a href="{% url 'login' %}">Choose a different account type</a>
+            </div>
+        {% else %}
+            <h3 style="text-align: center; margin-bottom: 20px;">Choose Your Account Type</h3>
+            <div class="role-options">
+                {% for role, label in login_roles %}
+                    <a href="{% url 'login' %}?role={{ role }}" class="btn-secondary-custom role-option">
+                        {% if role == 'ADMIN' %}
+                            <i class="fa-solid fa-user-shield"></i>
+                        {% elif role == 'TEACHER' %}
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                        {% else %}
+                            <i class="fa-solid fa-user-graduate"></i>
+                        {% endif %}
+                        {{ label }}
+                        <i class="fa-solid fa-arrow-right" style="margin-left: auto;"></i>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+</body>
+</html>

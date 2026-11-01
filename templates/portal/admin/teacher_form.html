@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - Project College{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-user-tie" style="color: var(--accent-cyan);"></i> Faculty Onboarding Form</h3>
+            <a href="{% url 'admin_teachers_list' %}" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                <i class="fa-solid fa-arrow-left"></i> Back to Faculty List
+            </a>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <h4 style="font-size: 0.95rem; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                Credentials
+            </h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Portal Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    {{ form.password }}
+                </div>
+            </div>
+
+            <h4 style="font-size: 0.95rem; color: var(--accent-cyan); text-transform: uppercase; margin: 20px 0 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                Department & Academic Title
+            </h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Employee ID</label>
+                    {{ form.employee_id }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    {{ form.department }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Designation</label>
+                    {{ form.designation }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Educational Qualification</label>
+                    {{ form.qualification }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Joining Date</label>
+                    {{ form.joining_date }}
+                </div>
+            </div>
+
+            <h4 style="font-size: 0.95rem; color: var(--accent-cyan); text-transform: uppercase; margin: 20px 0 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                Personal Details
+            </h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Official Email</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    {{ form.phone }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    {{ form.gender }}
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-primary-custom" style="padding: 12px 24px;">
+                    <i class="fa-solid fa-check"></i> Register Faculty Member
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
