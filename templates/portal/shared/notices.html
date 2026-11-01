@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Campus Notices - Apex University{% endblock %}
+{% block page_title %}Campus Bulletin & Announcements{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: {% if user.is_admin_user or user.is_teacher_user %}1fr 340px{% else %}1fr{% endif %}; gap: 24px; align-items: start;">
+    <!-- NOTICES LIST -->
+    <div>
+        {% for n in notices %}
+            <div class="card-glass notice-item {% if n.is_pinned %}pinned{% endif %}" style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div class="notice-title">
+                        {% if n.is_pinned %}
+                            <i class="fa-solid fa-thumbtack" style="color: var(--accent-amber);" title="Pinned Announcement"></i>
+                        {% endif %}
+                        {{ n.title }}
+                    </div>
+                    <span class="badge-role {{ n.target_role }}">
+                        Audience: {{ n.get_target_role_display }}
+                    </span>
+                </div>
+
+                <div class="notice-meta">
+                    <span><i class="fa-regular fa-user"></i> {{ n.posted_by.get_full_name }} ({{ n.posted_by.get_role_display }})</span>
+                    <span>•</span>
+                    <span><i class="fa-regular fa-clock"></i> {{ n.created_at|date:"M d, Y • H:i" }}</span>
+                </div>
+
+                <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; white-space: pre-line;">
+                    {{ n.content }}
+                </p>
+            </div>
+        {% empty %}
+            <div class="card-glass" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                <i class="fa-regular fa-newspaper" style="font-size: 2.5rem; margin-bottom: 12px; display: block; color: var(--text-muted);"></i>
+                No active announcements on the notice board right now.
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- POST NEW NOTICE (Admin & Faculty Only) -->
+    {% if user.is_admin_user or user.is_teacher_user %}
+        <div class="card-glass">
+            <div class="card-header-flex">
+                <h3 class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-bullhorn" style="color: var(--primary-light);"></i> Publish Notice</h3>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Headline</label>
+                    {{ form.title }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Audience</label>
+                    {{ form.target_role }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notice Details</label>
+                    {{ form.content }}
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    {{ form.is_pinned }}
+                    <label class="form-label" style="margin-bottom: 0;" for="{{ form.is_pinned.id_for_label }}">
+                        Pin to top of bulletin board
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; margin-top: 10px;">
+                    <i class="fa-solid fa-paper-plane"></i> Post Announcement
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

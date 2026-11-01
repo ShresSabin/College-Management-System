@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard - Apex University{% endblock %}
+{% block page_title %}Student Learning Space{% endblock %}
+
+{% block content %}
+<!-- STUDENT WELCOME HERO BANNER -->
+<div class="card-glass" style="margin-bottom: 24px; padding: 24px 28px; background: linear-gradient(135deg, rgba(198, 40, 40, 0.10) 0%, rgba(220, 38, 38, 0.03) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                <span class="badge-role STUDENT">Roll: {{ profile.roll_number }}</span>
+                <span style="font-size: 0.82rem; color: var(--text-muted);">Batch {{ profile.batch_year }}</span>
+            </div>
+            <h2 style="font-size: 1.65rem; margin-bottom: 4px;">Welcome back, {{ user.first_name }}! 👋</h2>
+            <p style="color: var(--text-secondary); font-size: 0.92rem;">
+                {{ profile.course.name }} • <strong>Semester {{ profile.semester }}</strong> (Dept of {{ profile.department.name }})
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'student_attendance' %}" class="btn-secondary-custom">
+                <i class="fa-solid fa-chart-pie"></i> Attendance Report
+            </a>
+            <a href="{% url 'student_assignments_view' %}" class="btn-primary-custom">
+                <i class="fa-solid fa-laptop-code"></i> View Tasks
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ATTENDANCE ALERT WARNING IF < 75% -->
+{% if total_classes > 0 and attendance_pct < 75 %}
+    <div class="alert-item alert-error" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.3rem;"></i>
+            <div>
+                <strong>Attendance Warning Notice:</strong> Your current attendance rate is <strong>{{ attendance_pct }}%</strong>, which is below the mandatory 75% eligibility threshold for end-semester exams. Please ensure you attend all remaining sessions.
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- STATS ROW -->
+<div class="stats-grid">
+    <!-- ATTENDANCE CARD -->
+    <div class="stat-card" style="--stat-accent: {% if attendance_pct >= 75 %}#10b981{% elif attendance_pct >= 65 %}#f59e0b{% else %}#f43f5e{% endif %};">
+        <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ attendance_pct }}%</div>
+            <div class="stat-label">Overall Attendance</div>
+            <div class="progress-bar-container" style="margin-top: 8px;">
+                <div class="progress-bar-fill {% if attendance_pct >= 75 %}progress-green{% elif attendance_pct >= 65 %}progress-amber{% else %}progress-red{% endif %}" style="width: {{ attendance_pct }}%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBJECTS COUNT -->
+    <div class="stat-card" style="--stat-accent: var(--primary);">
+        <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ enrolled_subjects.count }}</div>
+            <div class="stat-label">Enrolled Subjects</div>
+        </div>
+    </div>
+
+    <!-- SESSIONS ATTENDED -->
+    <div class="stat-card" style="--stat-accent: #06b6d4;">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ present_classes }} / {{ total_classes }}</div>
+            <div class="stat-label">Classes Attended</div>
+        </div>
+    </div>
+
+    <!-- PENDING TASKS -->
+    <div class="stat-card" style="--stat-accent: var(--primary-light);">
+        <div class="stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ assignment_cards|length }}</div>
+            <div class="stat-label">Assignments Listed</div>
+        </div>
+    </div>
+</div>
+
+<!-- TWO-COLUMN BODY -->
+<div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px;">
+    <!-- LEFT COLUMN: TODAY'S TIMETABLE & ASSIGNMENTS -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- TODAY'S CLASSES -->
+        <div class="card-glass">
+            <div class="card-header-flex">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-calendar-day" style="color: var(--primary-light);"></i> Today's Timetable ({{ today_name }})
+                </h3>
+                <a href="{% url 'student_timetable' %}" style="font-size: 0.82rem; font-weight: 600;">Full Week Schedule &rarr;</a>
+            </div>
+            {% for slot in today_schedule %}
+                <div class="slot-item">
+                    <div class="slot-time">
+                        <i class="fa-regular fa-clock"></i> {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                        <span class="status-pill status-submitted" style="margin-left: auto;">{{ slot.room_number }}</span>
+                    </div>
+                    <div class="slot-title">{{ slot.subject.name }}</div>
+                    <div class="slot-meta">
+                        <span>Code: {{ slot.subject.code }}</span>
+                        <span>•</span>
+                        <span>Faculty: {{ slot.subject.teacher.get_full_name|default:"TBA" }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; color: var(--text-muted); padding: 25px;">
+                    <i class="fa-regular fa-calendar-check" style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                    No classes scheduled for you today!
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- UPCOMING ASSIGNMENTS -->
+        <div class="card-glass">
+            <div class="card-header-flex">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-file-pen" style="color: var(--accent-cyan);"></i> Coursework & Deadlines
+                </h3>
+                <a href="{% url 'student_assignments_view' %}" style="font-size: 0.82rem; font-weight: 600;">All Assignments &rarr;</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for item in assignment_cards %}
+                    <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">{{ item.assignment.title }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
+                                {{ item.assignment.subject.code }} • Due: <strong style="color: var(--accent-amber);">{{ item.assignment.due_date|date:"M d, H:i" }}</strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="status-pill status-{{ item.status|lower }}">{{ item.status }}</span>
+                            <a href="{% url 'student_submit_assignment' item.assignment.id %}" class="btn-primary-custom" style="padding: 6px 12px; font-size: 0.78rem;">
+                                {% if item.is_submitted %}Review{% else %}Submit{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 25px;">No pending assignments right now!</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: RECENT RESULTS & NOTICES -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- RECENT EXAM RESULTS -->
+        <div class="card-glass">
+            <div class="card-header-flex">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-medal" style="color: var(--accent-amber);"></i> Latest Exam Results
+                </h3>
+                <a href="{% url 'student_results' %}" style="font-size: 0.82rem; font-weight: 600;">Grade Sheet &rarr;</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for g in recent_grades %}
+                    <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">{{ g.exam.subject.name }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ g.exam.name }}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="status-pill status-approved" style="font-size: 0.85rem; font-weight: 700;">{{ g.letter_grade }}</span>
+                            <div style="font-size: 0.78rem; color: var(--text-success); margin-top: 2px;">{{ g.marks_obtained }} / {{ g.exam.max_marks }}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 25px;">No exam grades published yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CAMPUS NOTICES -->
+        <div class="card-glass">
+            <div class="card-header-flex">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-bullhorn" style="color: var(--accent-rose);"></i> Campus Bulletins
+                </h3>
+                <a href="{% url 'notices_list' %}" style="font-size: 0.82rem; font-weight: 600;">All Notices &rarr;</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for n in notices %}
+                    <div class="notice-item {% if n.is_pinned %}pinned{% endif %}" style="padding: 12px 14px; margin-bottom: 0;">
+                        <div class="notice-title" style="font-size: 0.9rem;">
+                            {% if n.is_pinned %}<i class="fa-solid fa-thumbtack" style="color: var(--accent-amber); font-size: 0.8rem;"></i>{% endif %}
+                            {{ n.title }}
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 4px 0 6px;">{{ n.content|truncatechars:90 }}</p>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> {{ n.created_at|date:"M d, Y" }}</div>
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 25px;">No active notices.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Exams & Marks - Apex University{% endblock %}
+{% block page_title %}Examinations & Student Grades{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start;">
+    <!-- EXAMS LIST -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-award" style="color: var(--accent-amber);"></i> My Subject Exams</h3>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Exam Title</th>
+                        <th>Subject</th>
+                        <th>Exam Date</th>
+                        <th>Max / Pass</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in exams %}
+                        <tr>
+                            <td><strong style="color: var(--text-primary);">{{ e.name }}</strong></td>
+                            <td><span class="badge-role TEACHER">{{ e.subject.code }}</span></td>
+                            <td>{{ e.exam_date }}</td>
+                            <td>{{ e.max_marks }} / {{ e.pass_marks }}</td>
+                            <td>
+                                <a href="{% url 'teacher_exam_grades' e.id %}" class="btn-primary-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-pen-to-square"></i> Enter Student Marks
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No exams scheduled. Create an exam on the right.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CREATE EXAM -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-plus"></i> Schedule New Exam</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Exam Name (e.g. Midterm Spring 2026)</label>
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject</label>
+                {{ form.subject }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Exam Date</label>
+                {{ form.exam_date }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">Total Marks</label>
+                    {{ form.max_marks }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Passing Marks</label>
+                    {{ form.pass_marks }}
+                </div>
+            </div>
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; margin-top: 10px;">
+                <i class="fa-solid fa-calendar-check"></i> Schedule Exam
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

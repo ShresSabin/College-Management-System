@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Manage Leave Applications - Apex University{% endblock %}
+{% block page_title %}Leave Application Requests{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 18px 24px;">
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <span style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600;">Filter by Status:</span>
+        <a href="{% url 'admin_leaves' %}" class="btn-secondary-custom {% if not status_filter %}active{% endif %}" style="padding: 6px 14px; font-size: 0.8rem;">All</a>
+        <a href="{% url 'admin_leaves' %}?status=Pending" class="btn-secondary-custom {% if status_filter == 'Pending' %}active{% endif %}" style="padding: 6px 14px; font-size: 0.8rem; color: var(--text-warning) !important;">Pending</a>
+        <a href="{% url 'admin_leaves' %}?status=Approved" class="btn-secondary-custom {% if status_filter == 'Approved' %}active{% endif %}" style="padding: 6px 14px; font-size: 0.8rem; color: var(--text-success) !important;">Approved</a>
+        <a href="{% url 'admin_leaves' %}?status=Rejected" class="btn-secondary-custom {% if status_filter == 'Rejected' %}active{% endif %}" style="padding: 6px 14px; font-size: 0.8rem; color: var(--text-error) !important;">Rejected</a>
+    </div>
+</div>
+
+<div class="card-glass">
+    <div class="table-wrapper">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Role</th>
+                    <th>Date Range</th>
+                    <th>Reason</th>
+                    <th>Current Status</th>
+                    <th>Action / Decision</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in leaves %}
+                    <tr>
+                        <td>
+                            <strong style="color: var(--text-primary);">{{ l.user.get_full_name }}</strong>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">@{{ l.user.username }}</div>
+                        </td>
+                        <td><span class="badge-role {{ l.user.role }}">{{ l.user.get_role_display }}</span></td>
+                        <td>
+                            <div style="color: var(--text-primary); font-size: 0.88rem;">{{ l.start_date }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">to {{ l.end_date }}</div>
+                        </td>
+                        <td style="max-width: 280px;">
+                            <div style="color: var(--text-secondary); font-size: 0.85rem;">{{ l.reason }}</div>
+                            {% if l.response_note %}
+                                <div style="margin-top: 4px; font-size: 0.75rem; color: var(--primary-light);">
+                                    <i class="fa-solid fa-reply"></i> Note: {{ l.response_note }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td><span class="status-pill status-{{ l.status|lower }}">{{ l.status }}</span></td>
+                        <td>
+                            <form method="post" action="{% url 'admin_leave_review' l.id %}" style="display: flex; gap: 8px; align-items: center;">
+                                {% csrf_token %}
+                                {% if l.status == 'Pending' %}
+                                    <input type="text" name="response_note" placeholder="Optional remark..." class="form-control" style="padding: 4px 8px; font-size: 0.75rem; width: 140px;">
+                                    <button type="submit" name="action" value="Approved" class="btn-success-custom">Approve</button>
+                                    <button type="submit" name="action" value="Rejected" class="btn-danger-custom">Reject</button>
+                                {% else %}
+                                    <span style="font-size: 0.78rem; color: var(--text-muted);">Reviewed by {{ l.reviewed_by.get_full_name|default:"Admin" }}</span>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No leave applications found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

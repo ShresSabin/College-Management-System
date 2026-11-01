@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Enter Marks: {{ exam.name }} - Apex University{% endblock %}
+{% block page_title %}Grade Assessment: {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="font-size: 1.25rem; margin-bottom: 4px;">{{ exam.name }} - {{ exam.subject.name }}</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Subject Code: <strong style="color: var(--text-primary);">{{ exam.subject.code }}</strong> • Max Marks: {{ exam.max_marks }} • Passing: {{ exam.pass_marks }}
+            </div>
+        </div>
+        <a href="{% url 'teacher_exams' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Exams
+        </a>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card-glass">
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Roll Number</th>
+                        <th>Student Name</th>
+                        <th style="width: 150px;">Score Obtained</th>
+                        <th style="width: 110px;">Letter Grade</th>
+                        <th>Teacher Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_grades %}
+                        <tr>
+                            <td><strong style="color: var(--primary-light);">{{ item.profile.roll_number }}</strong></td>
+                            <td>
+                                <strong style="color: var(--text-primary);">{{ item.profile.user.get_full_name }}</strong>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.profile.user.email }}</div>
+                            </td>
+                            <td>
+                                <input type="number" step="0.5" min="0" max="{{ exam.max_marks }}" name="marks_{{ item.profile.user.id }}" value="{{ item.marks }}" placeholder="0 - {{ exam.max_marks }}" class="form-control" style="padding: 8px 12px; font-size: 0.95rem; font-weight: 700; color: var(--text-success);">
+                            </td>
+                            <td>
+                                {% if item.grade %}
+                                    <span class="status-pill status-approved" style="font-weight: 700; font-size: 0.9rem;">{{ item.grade }}</span>
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">Auto-gen</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <input type="text" name="remarks_{{ item.profile.user.id }}" value="{{ item.remarks }}" placeholder="Optional feedback..." class="form-control" style="padding: 8px 12px; font-size: 0.85rem;">
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No students enrolled for this exam.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-primary-custom" style="padding: 12px 30px; font-size: 1rem;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Student Marks & Grades
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

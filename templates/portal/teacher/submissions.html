@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Submissions: {{ assignment.title }} - Apex University{% endblock %}
+{% block page_title %}Student Assignment Submissions{% endblock %}
+
+{% block content %}
+<div class="card-glass" style="margin-bottom: 24px; padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="font-size: 1.25rem; margin-bottom: 4px;">{{ assignment.title }}</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Subject: <strong style="color: var(--text-primary);">{{ assignment.subject.name }}</strong> • Due: {{ assignment.due_date|date:"M d, Y H:i" }} • Max: {{ assignment.max_marks }} pts
+            </div>
+        </div>
+        <a href="{% url 'teacher_assignments' %}" class="btn-secondary-custom" style="padding: 8px 14px; font-size: 0.85rem;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Assignments
+        </a>
+    </div>
+</div>
+
+<div class="card-glass">
+    <div class="table-wrapper">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Student Name</th>
+                    <th>Submitted At</th>
+                    <th>Status</th>
+                    <th>Score / Max</th>
+                    <th>Submission Content</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in submissions %}
+                    <tr>
+                        <td><strong style="color: var(--primary-light);">{{ s.student.student_profile.roll_number }}</strong></td>
+                        <td>
+                            <strong style="color: var(--text-primary);">{{ s.student.get_full_name }}</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.student.email }}</div>
+                        </td>
+                        <td>{{ s.submitted_at|date:"M d, Y • H:i" }}</td>
+                        <td><span class="status-pill status-{{ s.status|lower }}">{{ s.status }}</span></td>
+                        <td>
+                            {% if s.marks_obtained is not None %}
+                                <strong style="color: var(--text-success); font-size: 1rem;">{{ s.marks_obtained }}</strong> / {{ assignment.max_marks }}
+                            {% else %}
+                                <span style="color: var(--text-muted);">Ungraded</span>
+                            {% endif %}
+                        </td>
+                        <td style="max-width: 250px;">
+                            <div style="font-size: 0.82rem; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                {{ s.submission_text|default:"(No written text)" }}
+                            </div>
+                            {% if s.submission_file %}
+                                <a href="{{ s.submission_file.url }}" target="_blank" style="font-size: 0.75rem; color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">
+                                    <i class="fa-solid fa-file-arrow-down"></i> Download Attached File
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'teacher_grade_submission' s.id %}" class="btn-primary-custom" style="padding: 6px 12px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-square-poll-vertical"></i> {% if s.status == 'Graded' %}Edit Grade{% else %}Grade Now{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No students have submitted this assignment yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

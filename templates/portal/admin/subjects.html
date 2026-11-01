@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Subjects & Curriculum - Apex University{% endblock %}
+{% block page_title %}Subjects & Curriculum Allocation{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+    <!-- LIST SUBJECTS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-book-open" style="color: var(--primary-light);"></i> Registered Subjects</h3>
+        </div>
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Subject Title</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Credits</th>
+                        <th>Assigned Faculty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in subjects %}
+                        <tr>
+                            <td><strong style="color: var(--primary-light);">{{ s.code }}</strong></td>
+                            <td><strong style="color: var(--text-primary);">{{ s.name }}</strong></td>
+                            <td>{{ s.course.code }}</td>
+                            <td><span class="badge-role STUDENT">Sem {{ s.semester }}</span></td>
+                            <td>{{ s.credits }} pts</td>
+                            <td>
+                                {% if s.teacher %}
+                                    <span style="color: var(--role-teacher-text);"><i class="fa-solid fa-chalkboard-user"></i> {{ s.teacher.get_full_name }}</span>
+                                {% else %}
+                                    <span style="color: var(--text-muted);">Unassigned</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No subjects registered.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CREATE SUBJECT -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-plus"></i> Add New Subject</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Subject Code (e.g. CS401)</label>
+                {{ form.code }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject Name</label>
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Course</label>
+                {{ form.course }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">Semester</label>
+                    {{ form.semester }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Credits</label>
+                    {{ form.credits }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Assigned Teacher</label>
+                {{ form.teacher }}
+            </div>
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-check"></i> Register Subject
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

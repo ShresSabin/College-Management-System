@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Manage Assignments - Apex University{% endblock %}
+{% block page_title %}Coursework & Assignment Manager{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
+    <!-- ASSIGNMENTS LIST -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-file-pen" style="color: var(--primary-light);"></i> Posted Assignments</h3>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            {% for a in assignments %}
+                <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                        <div>
+                            <span class="badge-role TEACHER" style="margin-bottom: 6px;">{{ a.subject.code }}</span>
+                            <h4 style="font-size: 1.05rem; margin-top: 4px;">{{ a.title }}</h4>
+                        </div>
+                        <span class="status-pill status-submitted">
+                            <i class="fa-solid fa-folder-open"></i> {{ a.submission_count }} Submissions
+                        </span>
+                    </div>
+
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 10px 0;">
+                        {{ a.description|truncatewords:25 }}
+                    </p>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 0.78rem; color: var(--text-muted);">
+                        <span><i class="fa-regular fa-calendar-xmark"></i> Due: <strong style="color: var(--accent-amber);">{{ a.due_date|date:"M d, Y • H:i" }}</strong> (Max: {{ a.max_marks }} pts)</span>
+                        <a href="{% url 'teacher_assignment_submissions' a.id %}" class="btn-primary-custom" style="padding: 6px 12px; font-size: 0.78rem;">
+                            View Submissions &rarr;
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+                    No assignments posted yet. Create your first assignment on the right!
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- CREATE ASSIGNMENT FORM -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-plus"></i> New Assignment</h3>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Subject</label>
+                {{ form.subject }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Assignment Title</label>
+                {{ form.title }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Instructions / Problem Statement</label>
+                {{ form.description }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label">Due Date & Time</label>
+                    {{ form.due_date }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Max Marks</label>
+                    {{ form.max_marks }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Attachment (Optional File/PDF)</label>
+                {{ form.attachment }}
+            </div>
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; margin-top: 10px;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Publish Assignment
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

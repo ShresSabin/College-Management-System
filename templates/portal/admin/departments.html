@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Departments - Project College{% endblock %}
+{% block page_title %}Academic Departments{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+    <!-- LIST DEPARTMENTS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-building-columns" style="color: var(--accent-emerald);"></i> Active Departments</h3>
+        </div>
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Department Name</th>
+                        <th>Head of Department</th>
+                        <th>Courses</th>
+                        <th>Faculty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in departments %}
+                        <tr>
+                            <td><strong style="color: var(--accent-emerald);">{{ d.code }}</strong></td>
+                            <td>
+                                <strong style="color: var(--text-primary);">{{ d.name }}</strong>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">{{ d.description|truncatewords:8 }}</div>
+                            </td>
+                            <td>{{ d.head_of_department.get_full_name|default:"Not assigned" }}</td>
+                            <td><span class="badge-role STUDENT">{{ d.course_count }} Courses</span></td>
+                            <td><span class="badge-role TEACHER">{{ d.teacher_count }} Faculty</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No departments found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CREATE DEPARTMENT -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title" style="font-size: 1rem;"><i class="fa-solid fa-plus"></i> Add Department</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Department Code (e.g. CSE)</label>
+                {{ form.code }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department Full Name</label>
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Head of Department (Faculty)</label>
+                {{ form.head_of_department }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                {{ form.description }}
+            </div>
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-check"></i> Create Department
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

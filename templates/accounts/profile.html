@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - Project College{% endblock %}
+{% block page_title %}Account Profile{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+    <!-- LEFT CARD: IDENTITY OVERVIEW -->
+    <div class="card-glass" style="text-align: center; padding: 32px 24px;">
+        <div style="position: relative; width: 110px; height: 110px; margin: 0 auto 20px;">
+            {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);">
+            {% else %}
+                <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: var(--text-on-accent); box-shadow: 0 8px 25px var(--primary-glow);">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+            {% endif %}
+            <span class="badge-role {{ user.role }}" style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); white-space: nowrap;">
+                {{ user.get_role_display }}
+            </span>
+        </div>
+
+        <h3 style="margin-top: 12px; margin-bottom: 4px;">{{ user.get_full_name|default:user.username }}</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">@{{ user.username }}</p>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; text-align: left; font-size: 0.88rem; display: flex; flex-direction: column; gap: 12px;">
+            {% if user.role == 'STUDENT' and user.student_profile %}
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Roll Number</span>
+                    <strong style="color: var(--text-primary);">{{ user.student_profile.roll_number }}</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Course & Department</span>
+                    <span style="color: var(--text-primary);">{{ user.student_profile.course.name }} ({{ user.student_profile.department.code }})</span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Semester / Batch</span>
+                    <span style="color: var(--text-primary);">Semester {{ user.student_profile.semester }} • Batch {{ user.student_profile.batch_year }}</span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Guardian Contact</span>
+                    <span style="color: var(--text-primary);">{{ user.student_profile.guardian_name }} ({{ user.student_profile.guardian_phone }})</span>
+                </div>
+            {% elif user.role == 'TEACHER' and user.teacher_profile %}
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Employee ID</span>
+                    <strong style="color: var(--text-primary);">{{ user.teacher_profile.employee_id }}</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Designation & Dept</span>
+                    <span style="color: var(--text-primary);">{{ user.teacher_profile.designation }}, {{ user.teacher_profile.department.name }}</span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Qualification</span>
+                    <span style="color: var(--text-primary);">{{ user.teacher_profile.qualification|default:"Not specified" }}</span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Joining Date</span>
+                    <span style="color: var(--text-primary);">{{ user.teacher_profile.joining_date|default:"N/A" }}</span>
+                </div>
+            {% else %}
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase;">Role Privilege</span>
+                    <strong style="color: var(--text-primary);">System Administrator (Root Staff)</strong>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- RIGHT CARD: EDIT PROFILE DETAILS -->
+    <div class="card-glass">
+        <div class="card-header-flex">
+            <h3 class="card-title"><i class="fa-solid fa-user-pen" style="color: var(--primary-light);"></i> Personal Information</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Update your contact details</span>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    {{ form.phone }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    {{ form.gender }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Residential Address</label>
+                {{ form.address }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload Profile Photo</label>
+                {{ form.profile_pic }}
+            </div>
+
+            <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

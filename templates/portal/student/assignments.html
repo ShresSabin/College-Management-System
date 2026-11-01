@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}My Assignments - Apex University{% endblock %}
+{% block page_title %}Assignments & Coursework{% endblock %}
+
+{% block content %}
+<div class="card-glass">
+    <div class="card-header-flex">
+        <h3 class="card-title"><i class="fa-solid fa-laptop-code" style="color: var(--primary-light);"></i> Coursework Tasks & Projects</h3>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+        {% for item in assignments %}
+            <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+                    <div>
+                        <span class="badge-role STUDENT">{{ item.assignment.subject.code }}</span>
+                        <h4 style="font-size: 1.15rem; margin-top: 6px;">{{ item.assignment.title }}</h4>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                            Posted by: {{ item.assignment.teacher.get_full_name }} • Subject: {{ item.assignment.subject.name }}
+                        </div>
+                    </div>
+
+                    <div>
+                        {% if item.is_submitted %}
+                            <span class="status-pill status-{{ item.submission.status|lower }}">
+                                <i class="fa-solid fa-circle-check"></i> {{ item.submission.status }}
+                            </span>
+                        {% elif item.is_past_due %}
+                            <span class="status-pill status-absent">Past Due Date</span>
+                        {% else %}
+                            <span class="status-pill status-pending">Pending Submission</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin: 12px 0;">
+                    {{ item.assignment.description }}
+                </p>
+
+                {% if item.assignment.attachment %}
+                    <div style="margin-bottom: 14px;">
+                        <a href="{{ item.assignment.attachment.url }}" target="_blank" class="btn-secondary-custom" style="padding: 6px 12px; font-size: 0.78rem;">
+                            <i class="fa-solid fa-download"></i> Download Assignment Materials
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- SUBMISSION STATUS DETAILS -->
+                {% if item.is_submitted %}
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 16px; margin: 12px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">
+                                Submitted on: <strong style="color: var(--text-primary);">{{ item.submission.submitted_at|date:"M d, Y • H:i" }}</strong>
+                            </span>
+                            {% if item.submission.marks_obtained is not None %}
+                                <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-success);">
+                                    Score: {{ item.submission.marks_obtained }} / {{ item.assignment.max_marks }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if item.submission.feedback %}
+                            <div style="font-size: 0.82rem; color: var(--primary-light); margin-top: 6px;">
+                                <i class="fa-solid fa-comment-dots"></i> <strong>Instructor Feedback:</strong> {{ item.submission.feedback }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 14px; font-size: 0.82rem;">
+                    <span style="color: var(--text-muted);">
+                        <i class="fa-regular fa-clock"></i> Deadline: <strong style="color: var(--accent-amber);">{{ item.assignment.due_date|date:"M d, Y • H:i" }}</strong> (Total: {{ item.assignment.max_marks }} Marks)
+                    </span>
+
+                    <a href="{% url 'student_submit_assignment' item.assignment.id %}" class="btn-primary-custom" style="padding: 6px 14px; font-size: 0.82rem;">
+                        {% if item.is_submitted %}
+                            <i class="fa-solid fa-pen-to-square"></i> Update Submission
+                        {% else %}
+                            <i class="fa-solid fa-upload"></i> Submit Work
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+                No assignments posted for your subjects.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
